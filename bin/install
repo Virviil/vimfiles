@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Remove existing Vim files
+cd ~
+rm -rf .vim
+rm .vimrc
+
+# Clone my Vim files
+git clone git://github.com/brymck/dotvim.git .vim
+ln -s .vim/vimrc .vimrc
+cd .vim
+
+# Initialize and pull all submodules
+git submodule init
+git submodule update
+
+# Add pathogen
+mkdir autoload
+cd autoload
+ln -s ../pathogen/autoload/pathogen.vim pathogen.vim
+
+# Install Ruby extras
+cd ~/.vim
+bundle update
+
+# Link up IRB
+cd ~
+rm .irbrc
+ln -s .vim/irbrc .irbrc
+ln -s .vim/pryrc .pryrc
