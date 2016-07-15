@@ -1,8 +1,7 @@
 "------------------------------------------------------------------------------
 " Pathogen
 "------------------------------------------------------------------------------
-call pathogen#infect()
-call pathogen#runtime_append_all_bundles()
+execute pathogen#infect()
 call pathogen#helptags()
 
 "------------------------------------------------------------------------------
@@ -27,7 +26,7 @@ else
   let terminal_flag="-c"
 endif
 
-set autoread                   " Set to autoread when file is changed
+set autoread                   " Reloads file, When it is changed outside VIM
 set hidden                     " Enable handling of multiple buffers
 set history=1000               " Keep a longer history of commands
 runtime macros/matchit.vim     " Extended % matching
@@ -40,9 +39,6 @@ set timeoutlen=500             " Wait 0.5 s for a key sequence to complete
 set wildmode=longest:full      " Show all matches for tab-completing file names
 set wildmenu                   " Turn on wild menu
 
-" Allow jj to be used to escape from insert mode  
-inoremap jj <Esc>
-
 "------------------------------------------------------------------------------
 " General
 "------------------------------------------------------------------------------
@@ -50,6 +46,16 @@ inoremap jj <Esc>
 if executable("par")
   set formatprg=par\ 80gqs0
 endif
+
+" Starts in maximized mode
+if has('gui')
+  if has('win32')
+    au GUIEnter * :set lines=99999 columns=99999
+  elseif has('gui_gtk2')
+    au GUIEnter * :set lines=99999 columns=99999
+  endif
+endif
+
 
 " Navigate by display lines
 nnoremap j gj
@@ -88,9 +94,6 @@ let mapleader=","              " Set leader to comma
 " Fast editing and updating of .vimrc
 execute "nnoremap <leader>v :e! " . vimfiles_path . "vimrc<CR>"
 execute "autocmd! bufwritepost vimrc source " . vimrc_path
-
-" Fast looking in gems
-nnoremap <leader>g :exe "e " . escape(system("gem which "), ' ')<Left><Left><Left><Left><Left><Left><Left><Left>
 
 "------------------------------------------------------------------------------
 " Indent
@@ -176,23 +179,6 @@ endif
 "------------------------------------------------------------------------------
 " Language
 "------------------------------------------------------------------------------
-" Use Unicode if multi-byte is available
-if has("multi_byte")
-  " Make sure terminal encoding is set
-  if &termencoding == ""
-    let &termencoding=&encoding
-  endif
-
-  " Use UTF-8, but allow some other common encodings
-  set encoding=utf-8
-  setglobal fileencoding=utf-8
-  set fileencodings=utf-8,utf-16,sjis,latin1,ucs-bom
-
-  " Gvim struggles with ambiguous width. MacVim doesn't.
-  if is_windows
-    set ambiwidth=double       
-  endif
-endif
 
 " Remap ¥ to \ for command line
 cnoremap ¥ <Bslash>
@@ -203,28 +189,38 @@ set noimd                      " Retain input method editor memory for modes
 " Colors and fonts
 "------------------------------------------------------------------------------
 syntax enable                  " Enable syntax highlighting
-set t_Co=256                   " Default terminal colors to 256
-colorscheme candycode          " Use candycode scheme by default
 
-" Quick toggle between light and dark color schemes
-nnoremap <leader>d :colorscheme candycode<CR>
-nnoremap <leader>l :colorscheme nekotako<CR>
+" Define vim-one colorscheme
+set background=light 
+colorscheme one
+let g:airline_theme='one'
 
-" Set default fonts for different platforms
-if has("win32")
-  set guifont=Consolas:h10:cANSI
-else
-  set guifont=Menlo\ Regular:h12
-endif
+"------------------------------------------------------------------------------
+" Vim airline
+"------------------------------------------------------------------------------
+set laststatus=2               "Show airline without splitting 
 
-" Show syntax highlighting groups for word under cursor
-function! <SID>SynStack()
-  if !exists("*synstack")
-    return
-  endif
-  echo join(map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")'), " ")
-endfunction
-nmap <C-S-P> :call <SID>SynStack()<CR>
+" Show tabline
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#show_buffers = 0 "Hide buffers
+
+"------------------------------------------------------------------------------
+" CtrlP.vim
+"------------------------------------------------------------------------------
+
+" Rebind
+let g:ctrlp_map = '<leader>p'
+let g:ctrlp_cmd = 'CtrlP'
+
+" Working path mode
+let g:ctrlp_working_path_mode = 'ra'
+
+" Remaping to open files in new tab
+let g:ctrlp_prompt_mappings = {
+    \ 'AcceptSelection("e")': ['<c-t>'],
+    \ 'AcceptSelection("t")': ['<cr>', '<2-LeftMouse>'],
+    \ }
+
 
 "------------------------------------------------------------------------------
 " Files
@@ -235,38 +231,6 @@ set noswapfile                 " Don't use a swapfile for the buffer
 
 " Easily switch between buffers
 nnoremap <leader>b :buffers<CR>:buffer<Space>
-
-"------------------------------------------------------------------------------
-" Eijiro
-"------------------------------------------------------------------------------
-nnoremap <leader>k :call LookupInEijiro(0)<CR>
-vnoremap <leader>k :call LookupInEijiro(1)<CR>
-
-"------------------------------------------------------------------------------
-" konjac
-"------------------------------------------------------------------------------
-" Get rid of untranslated diff sections
-nnoremap <leader>zd :%s/\v^\@\@ \d+ \@\@\n\-(.*)\n\+\1\n//gic<CR>
-
-" Quick translation
-nnoremap <leader>ze :!konjac translate % -y -f ja -t en -u 
-nnoremap <leader>zj :!konjac translate % -y -f en -t ja -u 
-
-" Translate a single word or phrase
-nnoremap <leader>se :call OpenKonjac("ja", "en", 0, 1, 1)<CR>
-vnoremap <leader>se :call OpenKonjac("ja", "en", 1, 1, 1)<CR>
-nnoremap <leader>sj :call OpenKonjac("en", "ja", 0, 1, 1)<CR>
-vnoremap <leader>sj :call OpenKonjac("en", "ja", 1, 1, 1)<CR>
-
-" Translate a line
-nnoremap <leader>E :call OpenKonjac("ja", "en", 0, 0, 1)<CR>
-nnoremap <leader>J :call OpenKonjac("en", "ja", 0, 0, 1)<CR>
-
-" Translate word or phrase for entire document
-nnoremap <leader>e :call OpenKonjac("ja", "en", 0, 1, 0)<CR>
-vnoremap <leader>e :call OpenKonjac("ja", "en", 1, 1, 0)<CR>
-nnoremap <leader>j :call OpenKonjac("en", "ja", 0, 1, 0)<CR>
-vnoremap <leader>j :call OpenKonjac("en", "ja", 1, 1, 0)<CR>
 
 "------------------------------------------------------------------------------
 " NERDTree
@@ -311,66 +275,6 @@ set ignorecase
 set smartcase
 
 set report=0                   " Notify how many replacements were made
-
-"------------------------------------------------------------------------------
-" Fugitive
-"------------------------------------------------------------------------------
-" Push
-nnoremap <leader>gp :Git push origin master<Left><Left><Left><Left><Left><Left><Left>
-
-" Bring up status of altered files
-nnoremap <leader>gs :Gstatus<CR>/\vmodified:/e<CR>:nohlsearch<CR><Esc>
-
-" Write current file and add to git repository
-nnoremap <leader>gw :Gwrite<CR>
-
-" Clean submodules
-nnoremap <leader>gxc :Git submodule foreach git clean -f<CR><CR>
-
-" Add indicator for current branch in status line
-set statusline=%<%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
-
-" Auto-clean fugitive buffers
-autocmd BufReadPost fugitive://* set bufhidden=delete
-
-"------------------------------------------------------------------------------
-" v1m
-"------------------------------------------------------------------------------
-nnoremap <leader>1a :call FullToHalfAll()<CR>
-nnoremap <leader>1f :call FullToHalf()<CR>
-nnoremap <leader>1s :call ReopenAsShiftJIS()<CR>
-nnoremap <leader>1h :call HighlightTerms()<CR>
-
-" Keybindings for AppleScripts
-nnoremap <leader>1mp :call ImportTagsPowerPoint()<CR><CR>
-nnoremap <leader>1mw :call ImportTagsWord()<CR><CR>
-nnoremap <leader>1xp :call ExtractTagsPowerPoint()<CR><CR>
-nnoremap <leader>1xw :call ExtractTagsWord()<CR><CR>
-
-"------------------------------------------------------------------------------
-" Conque
-"------------------------------------------------------------------------------
-" Map Ctrl+W to change tabs in insert mode
-let g:ConqueTerm_CWInsert = 1
-
-" Different interactive shell environments
-exe "nnoremap <leader>qb :ConqueTermSplit " . terminal . "<CR>"
-exe "nnoremap <leader>qj :ConqueTermSplit " . terminal . " " . terminal_flag . " node<CR>"
-exe "nnoremap <leader>qp :ConqueTermSplit " . terminal . " " . terminal_flag . " re.pl<CR>"
-exe "nnoremap <leader>qr :ConqueTermSplit " . terminal . " " . terminal_flag . " irb<CR>"
-
-" Mappings similar to SLIME
-let g:ConqueTerm_SendFileKey = '<C-C><C-C>'
-let g:ConqueTerm_SendVisKey = '<C-C><C-C>'
-
-" Automatically close buffer when program exits
-let g:ConqueTerm_CloseOnEnd = 1
-
-" Regex for highlighting prompt
-let g:ConqueTerm_PromptRegex = '\v^(\S+\$|\>|\S+ [0-9.p]+ \d+(\*| \>)|\s+\d\.\.)'
-
-" Ignore start messages
-let g:ConqueTerm_StartMessages = 0
 
 "------------------------------------------------------------------------------
 " Miscellaneous

@@ -50,15 +50,6 @@ needs to be run in three parts.
     cd autoload
     mklink pathogen.vim ..\pathogen\autoload\pathogen.vim
 
-You can add the optional stuff as follows:
-
-    cd "%UserProfile%\vimfiles"
-    bundle update
-    cd ..
-    del _pryrc
-    mklink _irbrc vimfiles\irbrc
-    mklink _pryrc vimfiles\pryrc
-
 Updating
 --------
 
