@@ -15,8 +15,8 @@ filetype indent on             " Enable indent pluing
 " Get cross-platform runtime and paths
 let is_windows=has("win32")
 if is_windows
-  let vimfiles_path=$VIM . "/vimfiles/"
-  let vimrc_path=$VIM . "/_vimrc"
+  let vimfiles_path=$HOME. "/vimfiles/"
+  let vimrc_path=$HOME . "/_vimrc"
   let terminal="cmd"
   let terminal_flag="/c"
 else
