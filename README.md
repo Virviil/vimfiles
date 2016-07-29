@@ -8,7 +8,7 @@ Installation
 
 Copy and paste this into a terminal:
 
-    bash -s < <(curl -s https://raw.github.com/brymck/dotvim/master/bin/install)
+    bash -s < <(curl -s https://raw.github.com/virviil/vimfiles/master/bin/install)
 
 #### Explanation
 
