@@ -8,7 +8,7 @@ Installation
 
 Copy and paste this into a terminal:
 
-    bash -s < <(curl -s https://raw.github.com/virviil/vimfiles/master/bin/install)
+    bash -s < <(curl -s https://raw.githubusercontent.com/virviil/vimfiles/master/bin/install)
 
 #### Explanation
 
@@ -135,3 +135,10 @@ This configuration utilizes the following plugins:
 * [tabular](http://www.vim.org/scripts/script.php?script_id=3464) ([Josh
   Adams](http://www.vim.org/account/profile.php?user_id=27136)) - Vim script
   for text filtering and alignment
+
+#### Add new plugin
+
+```bash
+cd bundle
+git submodule git://path_to_plugin_repository
+```

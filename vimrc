@@ -53,6 +53,18 @@ if has('gui')
     au GUIEnter * :set lines=99999 columns=99999
   elseif has('gui_gtk2')
     au GUIEnter * :set lines=99999 columns=99999
+  elseif has("gui_running")
+    " GUI is running or is is about to start.
+    " Maximize gvim window
+    set lines=999 columns=999
+  else
+    " This is console VIM
+    if exist("+lines")
+      set lines=50
+    endif
+    if exist("+columns")
+      set columns=100
+    endif
   endif
 endif
 
@@ -203,6 +215,9 @@ set laststatus=2               "Show airline without splitting
 " Show tabline
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#show_buffers = 0 "Hide buffers
+
+" Adding patched fonts
+let g:airline_powerline_fonts = 1
 
 "------------------------------------------------------------------------------
 " CtrlP.vim
